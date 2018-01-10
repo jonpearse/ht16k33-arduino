@@ -23,11 +23,22 @@ The API commands are, in no particular order:
 - @setPixel(uint8_t row, uint8_t col, uint8_t onoff)@ := sets the state of a single pixel. @onoff@ should be either 0 (off) or 1 (on)†
 - @setRow(uint8_t row, uint16_t value)@ := sets the content of an entire row (16 bits)†
 - @setCol(uint8_t col, uint8_t value)@ := sets the content of an entire column (8 bits)†
-- @drawSprite16(Sprite16 data)@ := draws the @Sprite16@ onto the matrix at point (0, 0)†
+- @drawSprite16(Sprite16 data)@ := draws the @Sprite16@ onto the matrix at point (0, 0) (see below)†
 - @drawSprite16(Sprite16 data, uint8_t x, uint8_t y)@ := as above, but at point (x, y)†
 - @write()@ := writes the display buffer to the IC (updates the display)
 
 † note: none of these will write anything to the IC—you will still need to call @write()@.
+
+h3. About @Sprite16@
+
+@Sprite16@ is a class based on the venerable "Sprite library":http://wiring.org.co/reference/libraries/Sprite/index.html, but which has been built to allow a maximum sprite size of 16x8, compared to 8x8 in the original.
+
+In terms of creating sprites, Sprite16 is virtually identical to the original:
+
+pre. Sprite16 smile = Sprite16( 5, 5, 10, 10, 0, 17, 14 );
+
+p. However, one major difference is that Sprite16 _does not_ implement either the @read()@ or @write()@ methods present
+in the original, as it is unneeded for the purposes of this library.
 
 h3. Blink Rates
 
