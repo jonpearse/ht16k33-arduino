@@ -2,6 +2,8 @@ h1. HT16K33 Library for Arduino
 
 This is a quick and dirty library providing a relatively easy-to-use interface for driving the "Holtek HT16K33":http://www.holtek.com.tw/documents/10179/11842/HT16K33v120.pdf 16x8 LED driver IC. I wrote it for a project I was working on, and thought it worth chucking up onto Github in case anyone else finds it useful.
 
+In 2019, support for the keyscan funcationality of the HT16K33 has been added.
+
 h2. Quickref
 
 This library should be reasonably self-explanatory, and I’ve provided a few example sketches to get you started:
@@ -9,6 +11,7 @@ This library should be reasonably self-explanatory, and I’ve provided a few ex
 * *DemoReel* is your standard ‘smily faces and random animation’ thing that most matrix libraries tend to come with
 * *OrientationDemo* demonstrates the library’s ability to quickly + easily flip the display vertically + horizontally in software with a minimum of fuss and bother
 * *ReversalDemo* demonstrates how you can recover from connecting your matrices backward =)
+* *KeyscanDemo* demonstrates how you can use the keyscan functionality, either by regular polling, software interrupt or hardware interrupt
 
 The API commands are, in no particular order:
 
@@ -26,8 +29,28 @@ The API commands are, in no particular order:
 - @drawSprite16(Sprite16 data)@ := draws the @Sprite16@ onto the matrix at point (0, 0) (see below)†
 - @drawSprite16(Sprite16 data, uint8_t x, uint8_t y)@ := as above, but at point (x, y)†
 - @write()@ := writes the display buffer to the IC (updates the display)
+- @sleep()@ := Puts the IC to sleep. It will wake up again when a key is pressed or @wakeUp()@ is called
+- @wakeUp()@ := Wake up the IC from sleep mode
+- @getKeyInterrupt()@ := returns a boolean value indicating if there's new key data available that can be retrieved
+- @getKeyData()@ := returns an array of 3 uint16_t numbers, each one representing a row. The three MSBs are unused
+
 
 † note: none of these will write anything to the IC—you will still need to call @write()@.
+
+h3. About Keyscan
+
+Keep in mind that the data register is cleared if you read the data from the IC.
+
+There are three options to get data from the IC:
+
+- Periodically poll the IC for new data
+- Poll the interrupt register
+- Attach a hardware interrupt (see keyscan example)
+
+Note that you may need to debounce the keys yourself. The IC is doing basic hardware debouncing, however if you query
+the data too quickly after receiving the interrupt, the data register (and interrupt) is reset, while the user still
+may be pressing the button. If a hardware interrupt is used, less than 20ms are enough to receive the interrupt, read
+the data and clear the register again. Refer to the timing diagrams in the datasheet for more details.
 
 h3. About @Sprite16@
 
@@ -76,10 +99,6 @@ pre.
 p. Rather than having to rewire everything/rework your PCBs, you can just call @reverse()@, and the library will cover for you…
 
 _(no, this didn’t happen to me. I don’t know why you would think that /s)_
-
-h2. TODO
-
-It’d be really nice if this library supported the HT16K33’s keyscan functionality…
 
 h2. Caveats
 
